@@ -4,12 +4,18 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
+	// create command line flag to receive port
 	addr := flag.String("addr", ":4000", "HTTP network address")
+	// parse the command line flag
 	flag.Parse()
-	
+	// create custom logger for info output to standard out(stdout)
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	// create custom logger for error output to standard error(stderr)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	mux := http.NewServeMux()
 	// create a fileserver which serves file out of "./ui/static" directory
 	fileServer := http.FileServer(http.Dir("./ui/static"))
@@ -21,9 +27,17 @@ func main() {
 	mux.HandleFunc("/snippet/view", snippetView)
 	mux.HandleFunc("/snippet/create", snippetCreate)
 
-	//server
-	log.Printf("Starting server on port %s", *addr)
-	err := http.ListenAndServe(*addr, mux)
-	log.Fatal(err)
+	// create a new http.Server struct
+	srv := http.Server{
+		Addr:     *addr,
+		ErrorLog: errorLog,
+		Handler:  mux,
+	}
+	//use infoLog to log the information
+	infoLog.Printf("Starting server on port %s", *addr)
+	// Call the ListenAndServe() method instead of calling http.ListenAndServe() func
+	err := srv.ListenAndServe()
+	//use errorLog to log the error
+	errorLog.Fatal(err)
 
 }
