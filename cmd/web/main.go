@@ -30,22 +30,12 @@ func main() {
 		infoLog:  infoLog,
 	}
 
-	mux := http.NewServeMux()
-	// create a fileserver which serves file out of "./ui/static" directory
-	fileServer := http.FileServer(http.Dir("./ui/static"))
-
-	// use mux.Handle() to register fileServer as a handler
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
-	// route the other application as normal
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/snippet/view", app.snippetView)
-	mux.HandleFunc("/snippet/create", app.snippetCreate)
 
 	// create a new http.Server struct
 	srv := &http.Server{
 		Addr:     *addr,
 		ErrorLog: errorLog,
-		Handler:  mux,
+		Handler:  app.route(),
 	}
 	//use infoLog to log the information
 	infoLog.Printf("Starting server on port %s", *addr)
