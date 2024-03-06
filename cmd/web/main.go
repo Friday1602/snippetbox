@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/friday1602/snippetbox/internal/models"
 	_ "github.com/go-sql-driver/mysql" // need driver's init func so it can register itself with database/sql package
 )
 
@@ -14,6 +15,7 @@ import (
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	snippets *models.SnippetModel
 }
 
 func main() {
@@ -41,6 +43,7 @@ func main() {
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infoLog,
+		snippets: &models.SnippetModel{DB: db},
 	}
 
 	// create a new http.Server struct
